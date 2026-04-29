@@ -3,3 +3,5 @@ node_modules/
 out/
 electron/dist/
 *.js.map
+.env
+.env.local

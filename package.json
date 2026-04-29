@@ -1,0 +1,29 @@
+{
+  "name": "mp-dev-tools",
+  "version": "0.1.0",
+  "private": true,
+  "main": "electron/dist/main.js",
+  "scripts": {
+    "dev:next": "next dev",
+    "build:next": "next build",
+    "dev:electron": "tsc -p electron/tsconfig.json && electron .",
+    "dev": "npm run build:next && npm run dev:electron",
+    "build": "npm run build:next && tsc -p electron/tsconfig.json",
+    "start": "npm run build && electron ."
+  },
+  "dependencies": {
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.8",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "electron": "^35.1.2",
+    "postcss": "^8.5.4",
+    "tailwindcss": "^4.1.8",
+    "typescript": "^5.8.3"
+  }
+}

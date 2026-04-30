@@ -9,7 +9,8 @@
     "dev:electron": "tsc -p electron/tsconfig.json && electron .",
     "dev": "npm run build:next && npm run dev:electron",
     "build": "npm run build:next && tsc -p electron/tsconfig.json",
-    "start": "npm run build && electron ."
+    "start": "npm run build && electron .",
+    "dev:server": "next dev & tsc -p electron/tsconfig.json && electron ."
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

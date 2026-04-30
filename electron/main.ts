@@ -1,5 +1,13 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
+import Store from "electron-store";
+
+const store = new Store();
+
+ipcMain.handle("store-get", (_, key) => store.get(key));
+ipcMain.handle("store-set", (_, key, value) => store.set(key, value));
+ipcMain.handle("store-delete", (_, key) => store.delete(key));
+ipcMain.handle("store-get-all", () => store.store);
 
 function createWindow() {
   const win = new BrowserWindow({

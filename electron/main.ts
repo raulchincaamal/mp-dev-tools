@@ -1,46 +1,37 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
-import { spawn, ChildProcess } from "child_process";
 import Store from "electron-store";
+import next from "next";
+import http from "http";
 
 const store = new Store();
-let nextProcess: ChildProcess | null = null;
 const PORT = 3000;
+let server: http.Server | null = null;
 
 ipcMain.handle("store-get", (_, key) => store.get(key));
 ipcMain.handle("store-set", (_, key, value) => store.set(key, value));
 ipcMain.handle("store-delete", (_, key) => store.delete(key));
 ipcMain.handle("store-get-all", () => store.store);
 
-function startNextServer(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const projectRoot = path.join(__dirname, "../..");
-    const isPackaged = app.isPackaged;
+function getNextDir(): string {
+  if (app.isPackaged) {
+    return path.join(app.getAppPath());
+  }
+  return path.join(__dirname, "../..");
+}
 
-    nextProcess = spawn(
-      process.platform === "win32" ? "npx.cmd" : "npx",
-      ["next", "start", "-p", String(PORT)],
-      { cwd: projectRoot, shell: true }
-    );
+async function startNextServer(): Promise<void> {
+  const dir = getNextDir();
+  const nextApp = next({ dev: false, dir });
+  const handle = nextApp.getRequestHandler();
 
-    const timeout = setTimeout(() => reject(new Error("Next.js server timeout")), 30000);
+  await nextApp.prepare();
 
-    nextProcess.stdout?.on("data", (data: Buffer) => {
-      const output = data.toString();
-      console.log("[next]", output);
-      if (output.includes(`${PORT}`)) {
-        clearTimeout(timeout);
-        resolve();
-      }
-    });
-
-    nextProcess.stderr?.on("data", (data: Buffer) => {
-      console.error("[next]", data.toString());
-    });
-
-    nextProcess.on("error", (err) => {
-      clearTimeout(timeout);
-      reject(err);
+  return new Promise((resolve) => {
+    server = http.createServer((req, res) => handle(req, res));
+    server.listen(PORT, () => {
+      console.log(`Next.js server running on http://localhost:${PORT}`);
+      resolve();
     });
   });
 }
@@ -78,8 +69,8 @@ app.on("activate", () => {
 });
 
 app.on("before-quit", () => {
-  if (nextProcess) {
-    nextProcess.kill();
-    nextProcess = null;
+  if (server) {
+    server.close();
+    server = null;
   }
 });

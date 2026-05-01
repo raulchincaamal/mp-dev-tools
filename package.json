@@ -6,11 +6,14 @@
   "scripts": {
     "dev:next": "next dev",
     "build:next": "next build",
-    "dev:electron": "tsc -p electron/tsconfig.json && electron .",
+    "dev:electron": "tsc -p electron/tsconfig.json && set \"ELECTRON_RUN_AS_NODE=\" && electron .",
     "dev": "npm run build:next && npm run dev:electron",
     "build": "npm run build:next && tsc -p electron/tsconfig.json",
-    "start": "npm run build && electron .",
-    "dev:server": "next dev & tsc -p electron/tsconfig.json && electron ."
+    "start": "npm run build && set \"ELECTRON_RUN_AS_NODE=\" && electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -18,7 +21,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
-    "electron-store": "^11.0.2",
+    "electron-store": "^8.2.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^1.14.0",
@@ -40,9 +43,45 @@
     "@types/node": "25.6.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "electron": "41.3.0",
+    "electron": "35.7.5",
+    "electron-builder": "^26.0.12",
     "postcss": "8.5.12",
     "tailwindcss": "4.2.4",
     "typescript": "6.0.3"
+  },
+  "build": {
+    "appId": "com.mp-dev-tools.app",
+    "productName": "MP Dev Tools",
+    "asar": true,
+    "files": [
+      "electron/dist/**/*",
+      "node_modules/**/*",
+      ".next/**/*",
+      "public/**/*",
+      "next.config.ts",
+      "package.json"
+    ],
+    "win": {
+      "target": ["nsis"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "public/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "public/icon.png"
+    },
+    "directories": {
+      "output": "release"
+    }
   }
 }
